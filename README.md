@@ -33,6 +33,7 @@ New to tsParticles? Check out these guides:
 - **[Implementation Example](./IMPLEMENTATION_EXAMPLE.md)** - Complete copy-paste implementation with real examples
 - **[Next.js Quick Start](./QUICK_START_NEXTJS.md)** - Get started with Next.js 16 in minutes
 - **[Configuration Framework](./NEXTJS_CONFIGURATION_FRAMEWORK.md)** - Complete configuration system for per-route behavior, CSS tokens, and sequential animations
+- **[Architecture Review](./ARCHITECTURE_REVIEW.md)** - 🆕 Production-ready architecture with TypeScript best practices and plugin patterns
 - **[Feature Support Matrix](./FEATURE_SUPPORT_MATRIX.md)** - What's available and what you can build
 - **[Particle Grid Ideation](./PARTICLE_GRID_IDEATION.md)** - Comprehensive guide for advanced grid systems
 

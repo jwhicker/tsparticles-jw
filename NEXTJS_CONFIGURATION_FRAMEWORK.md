@@ -1,8 +1,10 @@
-# Next.js 16 Particle Configuration Framework
+# Next.js 16 Particle Configuration Framework (v2.0)
 
 ## Overview
 
-This document provides a comprehensive configuration framework for tsParticles in Next.js 16 with React 19, designed for easy per-route customization, per-page behavior control, sequential text formations, and modern theming with CSS design tokens.
+This document provides a comprehensive, production-ready configuration framework for tsParticles in Next.js 16 with React 19. The framework follows TypeScript best practices, tsParticles plugin patterns, and SOLID principles for maximum maintainability and extensibility.
+
+**Important:** See [ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md) for detailed design decisions and improvements over v1.0.
 
 ---
 
@@ -10,11 +12,11 @@ This document provides a comprehensive configuration framework for tsParticles i
 
 ### Key Principles
 
-1. **Route-Based Configuration** - Each route can specify its own particle behavior
-2. **CSS Token Integration** - Full design token support for consistent theming
-3. **Sequential Animations** - Support for animation sequences (e.g., "Under Construction" → "Coming Soon")
-4. **Type-Safe Configuration** - Full TypeScript support for all options
-5. **Zero-Config Defaults** - Sensible defaults with easy customization
+1. **Type Safety First** - Strict TypeScript without `any` types
+2. **Plugin-Based Architecture** - Follows tsParticles IPlugin pattern
+3. **Error Resilience** - Comprehensive error handling and fallbacks
+4. **Performance Optimized** - Memoization and proper cleanup
+5. **Extensible Design** - Easy to add features without breaking changes
 
 ---
 
@@ -197,10 +199,15 @@ export function applyTheme(theme: 'light' | 'dark') {
 
 ### 2.1 Route Configuration Types
 
+**Note:** See [ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md) for the complete, production-ready type system with strict typing and no `any` types.
+
 ```typescript
 // types/particle-config.ts
-import { ISourceOptions } from '@tsparticles/engine';
+import type { ISourceOptions, RecursivePartial } from '@tsparticles/engine';
 
+/**
+ * Interaction modes supported by the framework
+ */
 export type InteractionMode = 
   | 'grab' 
   | 'attract' 
@@ -213,6 +220,9 @@ export type InteractionMode =
   | 'parallax'
   | 'none';
 
+/**
+ * Grid rendering styles
+ */
 export type GridStyle = 
   | 'perlin-noise' 
   | 'simplex-noise' 
@@ -220,6 +230,9 @@ export type GridStyle =
   | 'grid' 
   | 'organic';
 
+/**
+ * Page transition animation effects
+ */
 export type AnimationEffect = 
   | 'fade-in' 
   | 'slide-left' 
@@ -229,40 +242,59 @@ export type AnimationEffect =
   | 'vortex'
   | 'none';
 
-export interface TextFormation {
-  text: string;
-  duration?: number;
-  delay?: number;
-  font?: string;
-  fontSize?: number;
+/**
+ * Text formation configuration
+ */
+export interface ITextFormation {
+  readonly text: string;
+  readonly duration?: number;
+  readonly delay?: number;
+  readonly font?: string;
+  readonly fontSize?: number;
 }
 
-export interface ParticleRouteConfig {
+/**
+ * Text formation sequence configuration
+ */
+export interface IFormationSequence {
+  readonly formations: ReadonlyArray<ITextFormation>;
+  readonly loop?: boolean;
+  readonly loopDelay?: number;
+}
+
+/**
+ * Route-specific particle configuration
+ */
+export interface IParticleRouteConfig {
   // Core behavior
-  gridStyle?: GridStyle;
-  particleCount?: number;
+  readonly gridStyle?: GridStyle;
+  readonly particleCount?: number;
   
-  // Interactions
-  hoverMode?: InteractionMode | InteractionMode[];
-  clickMode?: InteractionMode | InteractionMode[];
+  // Interactions (single or array for flexibility)
+  readonly hoverMode?: InteractionMode | ReadonlyArray<InteractionMode>;
+  readonly clickMode?: InteractionMode | ReadonlyArray<InteractionMode>;
   
   // Animations
-  transitionIn?: AnimationEffect;
-  transitionOut?: AnimationEffect;
+  readonly transitionIn?: AnimationEffect;
+  readonly transitionOut?: AnimationEffect;
   
   // Text formations
-  textFormations?: TextFormation[];
+  readonly textFormations?: ReadonlyArray<ITextFormation>;
+  readonly formationSequence?: IFormationSequence;
   
   // Theme integration
-  useSystemTheme?: boolean;
-  forceTheme?: 'light' | 'dark';
+  readonly useSystemTheme?: boolean;
+  readonly forceTheme?: 'light' | 'dark';
   
-  // Custom options (full control)
-  customOptions?: Partial<ISourceOptions>;
+  // Custom options (properly typed with tsParticles RecursivePartial)
+  readonly customOptions?: RecursivePartial<ISourceOptions>;
 }
 
-export interface RouteParticleMap {
-  [route: string]: ParticleRouteConfig;
+/**
+ * Route to configuration mapping
+ */
+export interface IRouteParticleMap {
+  readonly [route: string]: IParticleRouteConfig;
 }
 ```
 
@@ -333,13 +365,21 @@ export const particlePresets = {
 
 ## Part 3: Configuration-to-Options Converter
 
-### 3.1 Core Converter
+**⚠️ Production Version:** The implementation below contains `any` types for brevity. See [ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md) for the fully type-safe production version with:
+- No `any` types (replaced with proper generics and type guards)
+- Strict interface definitions for all internal structures
+- Type-safe deep merge utility
+- Comprehensive error handling
+
+### 3.1 Core Converter (Simplified Version)
 
 ```typescript
 // lib/config-to-options.ts
 import { ISourceOptions } from '@tsparticles/engine';
 import { ParticleRouteConfig } from '@/types/particle-config';
 import { designTokens } from '@/config/design-tokens';
+
+// PRODUCTION NOTE: Replace 'any' with proper types from ARCHITECTURE_REVIEW.md
 
 export function convertConfigToOptions(
   config: ParticleRouteConfig,

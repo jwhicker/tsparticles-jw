@@ -231,10 +231,47 @@ Create a new plugin: `@tsparticles/plugin-formations`
      - Physics-based (with momentum)
      - Path-following (curves, arcs)
 
+6. **Formation Sequence Manager**
+   - Orchestrates sequential text/image formations
+   - Manages timing and transitions between formations
+   - Supports delay, duration, and easing per formation
+   - Allows looping sequences for continuous animations
+   ```typescript
+   interface IFormationSequence {
+     formations: IFormationStep[];
+     loop?: boolean;
+     loopDelay?: number;
+   }
+   
+   interface IFormationStep {
+     id: string;
+     type: 'text' | 'image';
+     options: ITextFormationOptions | IImageFormationOptions;
+     duration: number; // How long to hold the formation
+     delay: number; // Delay before transitioning to next
+     transitionDuration?: number; // Override default transition time
+     easing?: EasingType;
+   }
+   
+   class FormationSequenceManager {
+     async playSequence(sequence: IFormationSequence): Promise<void> {
+       // 1. Loop through formations array
+       // 2. Transition to each formation with specified timing
+       // 3. Handle delays between formations
+       // 4. Support loop mode for continuous playback
+     }
+     
+     pauseSequence(): void;
+     resumeSequence(): void;
+     stopSequence(): void;
+     getCurrentFormation(): IFormationStep | null;
+   }
+   ```
+
 #### Integration with Existing System
 
 ```typescript
-// Usage example
+// Usage example - Single formation
 const formationsPlugin = {
   formations: [
     {
@@ -275,6 +312,34 @@ setTimeout(() => {
   await container.transitionFormation("logo");
   // Particles smoothly transition to logo shape
 }, 5000);
+
+// Sequential text formations (e.g., construction page)
+await container.playFormationSequence([
+  {
+    id: "construction",
+    type: "text",
+    options: {
+      text: "UNDER CONSTRUCTION",
+      font: "Arial, sans-serif",
+      fontSize: 48,
+      resolution: 5
+    },
+    duration: 3000,
+    delay: 0
+  },
+  {
+    id: "coming-soon",
+    type: "text",
+    options: {
+      text: "COMING SOON",
+      font: "Arial, sans-serif",
+      fontSize: 48,
+      resolution: 5
+    },
+    duration: 3000,
+    delay: 500 // transition delay between formations
+  }
+]);
 ```
 
 #### Implementation Steps

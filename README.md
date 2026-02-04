@@ -26,6 +26,16 @@ React.js, Vue.js (2.x and 3.x), Angular, Svelte, jQuery, Preact, Inferno, Riot.j
 
 ---
 
+## 🚀 Quick Start Guides
+
+New to tsParticles? Check out these guides:
+
+- **[Next.js Quick Start](./QUICK_START_NEXTJS.md)** - Get started with Next.js 16 in minutes
+- **[Feature Support Matrix](./FEATURE_SUPPORT_MATRIX.md)** - What's available and what you can build
+- **[Particle Grid Ideation](./PARTICLE_GRID_IDEATION.md)** - Comprehensive guide for advanced grid systems
+
+---
+
 ## Table of Contents
 
 - [tsParticles - TypeScript Particles](#tsparticles---typescript-particles)
